@@ -1,5 +1,5 @@
 ---
-title: "Predicting the Manner of Weight Lifting Exercises"
+title: "Predicting the Manner of Which Weight Lifting Exercises are Performed"
 author: "coursera-2015"
 date: "Saturday, June 20, 2015"
 output: html_document
@@ -21,23 +21,27 @@ More information on this test is available from the [website](http://groupware.l
 
 ## Goal
 
-In this project, my goal is to use data from accelerometers on the belt, forearm, arm, and dumbell of the 6 participants to predict the manner in which they did the exercise. 
+In this project, my goal is to use data from accelerometers on the belt, forearm, arm, and dumbbell of the 6 participants to predict the manner in which they did the exercise. 
 
-## Preparing the Data
-
-Load the raw data from local data folder into a dataset.
-
-```{r load-data, cache=TRUE, echo=FALSE}
-dsTraining <- read.csv("data//pml-training.csv", header=TRUE, sep=",", na.strings=c("NA","#DIV/0!",""))
-```
+## Load caret Library
 
 ```{r}
+library(caret)
+```
+
+## Prepare the Data
+
+Load the raw data from local data folder into a dataset for training.
+
+```{r load-data, cache=TRUE}
+dsTraining <- read.csv("data//pml-training.csv", header=TRUE, sep=",", na.strings=c("NA","#DIV/0!",""))
+
 dim(dsTraining)
 ```
 
-Eliminate columns where data is missing and those that don't have belt, forearm, arm, dumbell data to find the predictors. Also, remove the highly correlated variables
+Eliminate columns where data is missing and those that don't have belt, forearm, arm, dumbbell data to find the predictors. Also, remove the highly correlated variables
 
-```{r, dependson="load-data", echo=FALSE}
+```{r, dependson="load-data"}
 isAnyMissing <- sapply(dsTraining, function (x) any(is.na(x) | x == ""))
 
 isPredictor <- !isAnyMissing & grepl("belt|[^(fore)]arm|dumbbell|forearm", names(dsTraining))
@@ -47,31 +51,24 @@ predictors <- names(dsTraining)[isPredictor]
 highlyCorrelated <- findCorrelation(cor(dsTraining[, predictors]), cutoff=0.9)
 predictors <- predictors[-c(highlyCorrelated)]
 
-```
-
-```{r}
 predictors
 ```
 
-Subset the dataset and split into 70% training and 30% testing set 
+Subset the dataset and split into 60% training and 40% testing set.
 
-```{r, echo=FALSE}
-
+```{r}
 dsTraining <- dsTraining[, c("classe", predictors)]
 
-library(caret)
 inTrain <- createDataPartition(y=dsTraining$classe, p=0.6, list=FALSE)
 training <- dsTraining[inTrain,]
 testing <- dsTraining[-inTrain,]
-```
 
-```{r}
 dim(training); dim(testing)
-
 ```
 
 ## Train the Model
-Use a Random Forest method due to its popularity and accuracy.  Use a seed to make the results reproducable.
+
+Use a Random Forest method due to its popularity and accuracy to fit a model.  Use a seed to make the results reproducable.
 
 ```{r train-model, cache=TRUE, dependson="load-data"}
 set.seed(12345)
@@ -80,7 +77,46 @@ modFit <- train(classe ~ ., data=training, method="rf",
                 prox=TRUE, ntree=200, trControl=trctrlRF)
 ```
 
+Check the accuracy against the training set.
+
+```{r}
+predictTrain <- predict(modFit, training)
+confusionMatrix(predictTrain, training$classe)
+```
+
+Against the training dataset the model was able to predict the manner in which the exercise was done with 100% accuracy.  The 95% Confidence Interval (CI) is 99.97% to 100%.
+
+Check the accuracy against the test set (cross-validation).
+
+```{r}
+predictTest <- predict(modFit, testing)
+confusionMatrix(predictTest, testing$classe)
+```
+
+Against the testing dataset the model was able to predict the manner in which the exercise was done with 99.2% accuracy.  The 95% Confidence Interval (CI) is 98.97% to 99.38%.
+
 ## Perform the test
-```{r, echo=FALSE}
+
+Load the raw data from local data folder into a dataset for testing.  Use the prediction model to find the answers for the manner in which the exercise was done.
+
+```{r}
 dsTest <- read.csv("data//pml-testing.csv", header=TRUE, sep=",", na.strings=c("NA","#DIV/0!",""))
+
+answers <- data.frame(predict(modFit, dsTest), dsTest$user_name)
+answers
+```
+
+Generate the files for submission.
+
+```{r}
+pml_write_files = function(x){
+  n = length(x)
+  path <- "answers"
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=file.path(path, filename),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+pml_write_files(answers[[1]])
+list.files("answers")
 ```
