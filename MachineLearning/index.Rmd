@@ -5,18 +5,82 @@ date: "Saturday, June 20, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Background
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. 
+
+A test was conducted where 6 participants were asked to perform barbell lifts correctly and incorrectly in 5 different ways:
+
+ - Class A: exactly according to the specification
+ - Class B: throwing the elbows to the front
+ - Class C: lifting the dumbbell only halfway
+ - Class D: lowering the dumbbell only halfway
+ - Class E: throwing the hips to the front
+ 
+More information on this test is available from the [website](http://groupware.les.inf.puc-rio.br/har) (see the section on the Weight Lifting Exercise Dataset).
+
+## Goal
+
+In this project, my goal is to use data from accelerometers on the belt, forearm, arm, and dumbell of the 6 participants to predict the manner in which they did the exercise. 
+
+## Preparing the Data
+
+Load the raw data from local data folder into a dataset.
+
+```{r load-data, cache=TRUE, echo=FALSE}
+dsTraining <- read.csv("data//pml-training.csv", header=TRUE, sep=",", na.strings=c("NA","#DIV/0!",""))
+```
 
 ```{r}
-summary(cars)
+dim(dsTraining)
 ```
 
-You can also embed plots, for example:
+Eliminate columns where data is missing and those that don't have belt, forearm, arm, dumbell data to find the predictors. Also, remove the highly correlated variables
+
+```{r, dependson="load-data", echo=FALSE}
+isAnyMissing <- sapply(dsTraining, function (x) any(is.na(x) | x == ""))
+
+isPredictor <- !isAnyMissing & grepl("belt|[^(fore)]arm|dumbbell|forearm", names(dsTraining))
+
+predictors <- names(dsTraining)[isPredictor]
+
+highlyCorrelated <- findCorrelation(cor(dsTraining[, predictors]), cutoff=0.9)
+predictors <- predictors[-c(highlyCorrelated)]
+
+```
+
+```{r}
+predictors
+```
+
+Subset the dataset and split into 70% training and 30% testing set 
 
 ```{r, echo=FALSE}
-plot(cars)
+
+dsTraining <- dsTraining[, c("classe", predictors)]
+
+library(caret)
+inTrain <- createDataPartition(y=dsTraining$classe, p=0.6, list=FALSE)
+training <- dsTraining[inTrain,]
+testing <- dsTraining[-inTrain,]
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+dim(training); dim(testing)
+
+```
+
+## Train the Model
+Use a Random Forest method due to its popularity and accuracy.  Use a seed to make the results reproducable.
+
+```{r train-model, cache=TRUE, dependson="load-data"}
+set.seed(12345)
+trctrlRF <- trainControl(method="oob", number=3, repeats=1)
+modFit <- train(classe ~ ., data=training, method="rf", 
+                prox=TRUE, ntree=200, trControl=trctrlRF)
+```
+
+## Perform the test
+```{r, echo=FALSE}
+dsTest <- read.csv("data//pml-testing.csv", header=TRUE, sep=",", na.strings=c("NA","#DIV/0!",""))
+```
