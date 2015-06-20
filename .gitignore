@@ -7,10 +7,13 @@
 
 # RStudio files
 .Rproj.user/
+*.RData
 
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
 
-amswers
-index_cache
+MachineLearning/answers/
+MachineLearning/index_cache/
+
+DevDataProducts/.cache
