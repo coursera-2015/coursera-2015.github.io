@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My first deck</title>
+  <title>Calculate Your Own Car Lease Payment</title>
   <meta charset="utf-8">
-  <meta name="description" content="My first deck">
-  <meta name="author" content="coursera-2015">
+  <meta name="description" content="Calculate Your Own Car Lease Payment">
+  <meta name="author" content="Johns Hopkins University Data Science Specialization">
   <meta name="generator" content="slidify" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
@@ -33,9 +33,9 @@
     <!-- LOGO SLIDE -->
         <slide class="title-slide segue nobackground">
   <hgroup class="auto-fadein">
-    <h1>My first deck</h1>
-    <h2>just a test</h2>
-    <p>coursera-2015<br/>computer geek</p>
+    <h1>Calculate Your Own Car Lease Payment</h1>
+    <h2>Developing Data Products Course Project</h2>
+    <p>Johns Hopkins University Data Science Specialization<br/>Author is coursera-2015</p>
   </hgroup>
   <article></article>  
 </slide>
@@ -44,12 +44,16 @@
     <!-- SLIDES -->
     <slide class="" id="slide-1" style="background:;">
   <hgroup>
-    <h2>Slide 2</h2>
+    <h2>Calculating a Monthly Lease Payment</h2>
   </hgroup>
   <article data-timings="">
-    <pre><code class="r">sum(1:10)
-10 * (11) / 2
-</code></pre>
+    <p>Most car shoppers have no idea what a good lease payment is for a car they&#39;re considering. They need a benchmark to guide them through the shopping process: something to shoot for as they get lease quotes from different dealerships. </p>
+
+<p>Once you collect some basic financial information about the car you want to lease, and current interest rates, it&#39;s possible to calculate your own monthly payment.</p>
+
+<p>Using this application you can calculate such a lease payment with the formula described later in this presentation. </p>
+
+<p>Source: <a href="http://www.edmunds.com">Edmonds.com</a></p>
 
   </article>
   <!-- Presenter Notes -->
@@ -57,67 +61,61 @@
 
 <slide class="" id="slide-2" style="background:;">
   <hgroup>
-    <h2>Slide 3</h2>
+    <h2>Data That You Will Need</h2>
   </hgroup>
   <article data-timings="">
-    
-<div class="quiz quiz-single well ">
-  <p>What is 1 + 1?</p>
+    <p>To calculate a bottom-line lease payment, you will need to gather several figures:</p>
 
 <ol>
-<li>1</li>
-<li><em>2</em></li>
-<li>3</li>
-<li>4</li>
+<li><p><strong>MSRP of the vehicle.</strong> Also called the sticker price. </p></li>
+<li><p><strong>The money factor.</strong> This is the interest rate on which the lease is based. It&#39;s sometimes called a lease factor or even a lease fee. To get the money factor, call the dealer or get the information from your credit union. A common interest rate is 3 percent and as a money factor, this would be 0.00125. (Here&#39;s a handy tip: To convert interest rates to money factors, divide the interest rate by 2,400. To convert money factors to interest rates, multiply by 2,400.)</p></li>
+<li><p><strong>Lease term.</strong> It is recommended that you lease for 36 months or less.</p></li>
+<li><p><strong>Residual value of the car.</strong> Look up your car&#39;s residual value. Or call the bank or dealer and ask for the vehicle&#39;s residual value. As a rough guide, most cars have a residual value of between 45 and 60 percent for a 36-month lease. </p></li>
 </ol>
 
-  <button class="quiz-submit btn btn-primary">Submit</button>
-  <button class="quiz-toggle-hint btn btn-info">Show Hint</button>
-  <button class="quiz-show-answer btn btn-success">Show Answer</button>
-  <button class="quiz-clear btn btn-danger">Clear</button>
-  
-  <div class="quiz-hint">
-  <p>This is a hint</p>
-
-</div>
-<div class="quiz-explanation">
-  <p>This is an explanation</p>
-
-</div>
-</div>
   </article>
   <!-- Presenter Notes -->
 </slide>
 
 <slide class="" id="slide-3" style="background:;">
   <hgroup>
-    <h2>Slide 4</h2>
+    <h2>Calculating a Sample Car Lease Payment</h2>
   </hgroup>
   <article data-timings="">
-    
-<div class="quiz quiz-single well ">
-  <ol>
-<li>Edit YAML front matter</li>
-<li>Write using R Markdown</li>
-<li>Use an empty line followed by three dashes to separate slides!</li>
-</ol>
+    <p>In the following example, let&#39;s assume you negotiated the car&#39;s sticker price of $23,000 down to $20,000. Also assume that the interest rate is 3% and the residual value is 57%. So what would the monthly payments be on a three-year lease?</p>
 
-  <button class="quiz-submit btn btn-primary">Submit</button>
-  <button class="quiz-toggle-hint btn btn-info">Show Hint</button>
-  <button class="quiz-show-answer btn btn-success">Show Answer</button>
-  <button class="quiz-clear btn btn-danger">Clear</button>
-  
-  </div>
+<pre><code class="r">msrp = 23000; invoicePrice = msrp - 3000; leaseTerm = 36; residualValue = 0.57
+interestRate = 0.03; moneyFactor = interestRate / 24
+
+# Step 1: what will the car be worth
+futureValue = msrp * residualValue
+
+# Step 2: leased value of the car
+leasedValue = invoicePrice - futureValue
+
+# Step 3: monthly lease payment
+leasePayment = leasedValue / leaseTerm + (invoicePrice + futureValue) * moneyFactor
+</code></pre>
+
+<p>Your monthly lease payment would be $232.78.</p>
+
   </article>
   <!-- Presenter Notes -->
 </slide>
 
-<slide class="class" id="id" style="background:;">
+<slide class="" id="slide-4" style="background:;">
   <hgroup>
-    <h2>Slide 5</h2>
+    <h2>Project Details</h2>
   </hgroup>
   <article data-timings="">
-    <p>Some text</p>
+    <p>A simply Shiny application has been built and published that can generate a monthly car lease payment using the calculations presented here.</p>
+
+<p>You can view the application on shinyapps.io at <a href="https://coursera-2015.shinyapps.io/DevDataProducts">DevDataProducts</a></p>
+
+<p>You can view the source for the application and this presentation on GitHub at <a href="https://github.com/coursera-2015/coursera-2015.github.io/tree/master/DevDataProducts">DevDataProducts</a>.  (Note: The source for the Shiny app is in the <a href="https://github.com/coursera-2015/coursera-2015.github.io/tree/master/DevDataProducts/shinyapp">Shinyapp</a> folder.)</p>
+
+<p>This presentation you are viewing is being rendered on GitHub Pages at
+<a href="http://coursera-2015.github.io/DevDataProducts">DevDataProducts</a></p>
 
   </article>
   <!-- Presenter Notes -->
@@ -129,25 +127,25 @@
     <ul>
       <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=1 title='Slide 2'>
+        data-slide=1 title='Calculating a Monthly Lease Payment'>
          1
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=2 title='Slide 3'>
+        data-slide=2 title='Data That You Will Need'>
          2
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=3 title='Slide 4'>
+        data-slide=3 title='Calculating a Sample Car Lease Payment'>
          3
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=4 title='Slide 5'>
+        data-slide=4 title='Project Details'>
          4
       </a>
     </li>
