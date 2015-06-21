@@ -64,7 +64,7 @@ Your monthly lease payment would be $232.78.
 
 ## Project Details
 
-A simply Shiny application has been built and published that can generate a monthly car lease payment using the calculations presented here.
+A simple Shiny application has been built and published that can generate a monthly car lease payment using the calculations presented here.
 
 You can view the application on shinyapps.io at [DevDataProducts](https://coursera-2015.shinyapps.io/DevDataProducts)
 
